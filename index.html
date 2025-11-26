@@ -12,7 +12,7 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-  <!-- Babel para transformar JSX al vuelo (solo en desarrollo, pero funciona perfecto en páginas estáticas) -->
+  <!-- Babel (permite usar JSX sin build local) -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
@@ -32,7 +32,6 @@
 
   <div id="root" class="w-full"></div>
 
-  <!-- Tu simulador React Pro, convertido en un archivo build-ready -->
   <script type="text/babel">
 
     const { useState, useRef, useEffect } = React;
@@ -58,6 +57,7 @@
       }, [rho, g, h, area, steps]);
 
       function draw() {
+
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
 
@@ -94,6 +94,7 @@
           ctx.fillStyle = "rgba(255,255,255,0.3)";
           ctx.fillRect(fluidLeft + fluidWidth + 20 * DPR, y - 3 * DPR, barW, 6 * DPR);
 
+          // Marcas de profundidad
           if (i % Math.ceil(steps / 6) === 0) {
             ctx.fillStyle = "#012";
             ctx.font = `${13 * DPR}px Inter`;
@@ -101,62 +102,36 @@
           }
         }
 
-        // Pared
-       // Separación más amplia entre barra de presión y pared
-const separation = W * 0.15;
+        // -------------------------
+        //   PARED Y FLECHA (NUEVO)
+        // -------------------------
+        const separation = W * 0.15;
+        const wallX = fluidLeft + fluidWidth + separation + maxBarWidth;
 
-// NUEVA posición de la pared (más a la derecha)
-const wallX = fluidLeft + fluidWidth + separation + maxBarWidth;
-
-// Pared vertical
-const wallW = W * 0.08;
-ctx.fillStyle = "#e5e7eb";
-ctx.fillRect(wallX, fluidTop, wallW, fluidHeight);
-ctx.strokeStyle = "#cbd5e1";
-ctx.strokeRect(wallX, fluidTop, wallW, fluidHeight);
-
-// Centroide Y
-const yCp = fluidTop + (hc / h) * fluidHeight;
-
-// Flecha de fuerza
-const maxVector = W * 0.22;
-const vec = Math.min(maxVector, (F / (rho * g * h * area || 1)) * maxVector);
-
-ctx.strokeStyle = "#ef4444";
-ctx.lineWidth = 3 * DPR;
-ctx.beginPath();
-ctx.moveTo(wallX + wallW + 12 * DPR, yCp);
-ctx.lineTo(wallX + wallW + 12 * DPR + vec, yCp);
-ctx.stroke();
-
-ctx.fillStyle = "#ef4444";
-ctx.beginPath();
-ctx.moveTo(wallX + wallW + 12 * DPR + vec, yCp);
-ctx.lineTo(wallX + wallW + 8 * DPR + vec, yCp - 6 * DPR);
-ctx.lineTo(wallX + wallW + 8 * DPR + vec, yCp + 6 * DPR);
-ctx.closePath();
-ctx.fill();
-
-        ctx.strokeStyle = "#c5c5c5";
+        const wallW = W * 0.08;
+        ctx.fillStyle = "#e5e7eb";
+        ctx.fillRect(wallX, fluidTop, wallW, fluidHeight);
+        ctx.strokeStyle = "#cbd5e1";
         ctx.strokeRect(wallX, fluidTop, wallW, fluidHeight);
 
         const yCp = fluidTop + (hc / h) * fluidHeight;
-        const maxVector = 180 * DPR;
+
+        const maxVector = W * 0.22;
         const vec = Math.min(maxVector, (F / (rho * g * h * area || 1)) * maxVector);
 
-        // Flecha
-        ctx.strokeStyle = "#ff4d2e";
+        ctx.strokeStyle = "#ef4444";
         ctx.lineWidth = 3 * DPR;
+
         ctx.beginPath();
-        ctx.moveTo(wallX + wallW + 10 * DPR, yCp);
-        ctx.lineTo(wallX + wallW + 10 * DPR + vec, yCp);
+        ctx.moveTo(wallX + wallW + 12 * DPR, yCp);
+        ctx.lineTo(wallX + wallW + 12 * DPR + vec, yCp);
         ctx.stroke();
 
-        ctx.fillStyle = "#ff4d2e";
+        ctx.fillStyle = "#ef4444";
         ctx.beginPath();
-        ctx.moveTo(wallX + wallW + 10 * DPR + vec, yCp);
-        ctx.lineTo(wallX + wallW + vec, yCp - 6 * DPR);
-        ctx.lineTo(wallX + wallW + vec, yCp + 6 * DPR);
+        ctx.moveTo(wallX + wallW + 12 * DPR + vec, yCp);
+        ctx.lineTo(wallX + wallW + 8 * DPR + vec, yCp - 6 * DPR);
+        ctx.lineTo(wallX + wallW + 8 * DPR + vec, yCp + 6 * DPR);
         ctx.closePath();
         ctx.fill();
       }
@@ -198,13 +173,13 @@ ctx.fill();
 
           {/* Visualización */}
           <div className="lg:col-span-2 flex flex-col gap-6">
-          <div className="bg-white p-4 rounded-xl shadow-md flex justify-center">
-            <canvas
-              ref={canvasRef}
-              className="w-[95%] max-w-[800px] h-[420px] rounded-lg"
-            />
-          </div>
 
+            <div className="bg-white p-4 rounded-xl shadow-md flex justify-center">
+              <canvas
+                ref={canvasRef}
+                className="w-[95%] max-w-[800px] h-[420px] rounded-lg"
+              />
+            </div>
 
             {/* Resultados */}
             <div className="bg-white p-4 rounded-xl shadow-md">
