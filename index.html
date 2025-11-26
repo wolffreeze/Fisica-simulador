@@ -102,10 +102,41 @@
         }
 
         // Pared
-        const wallX = fluidLeft + fluidWidth + W * 0.25;
-        const wallW = W * 0.1;
-        ctx.fillStyle = "#eaeaea";
-        ctx.fillRect(wallX, fluidTop, wallW, fluidHeight);
+       // Separación más amplia entre barra de presión y pared
+const separation = W * 0.15;
+
+// NUEVA posición de la pared (más a la derecha)
+const wallX = fluidLeft + fluidWidth + separation + maxBarWidth;
+
+// Pared vertical
+const wallW = W * 0.08;
+ctx.fillStyle = "#e5e7eb";
+ctx.fillRect(wallX, fluidTop, wallW, fluidHeight);
+ctx.strokeStyle = "#cbd5e1";
+ctx.strokeRect(wallX, fluidTop, wallW, fluidHeight);
+
+// Centroide Y
+const yCp = fluidTop + (hc / h) * fluidHeight;
+
+// Flecha de fuerza
+const maxVector = W * 0.22;
+const vec = Math.min(maxVector, (F / (rho * g * h * area || 1)) * maxVector);
+
+ctx.strokeStyle = "#ef4444";
+ctx.lineWidth = 3 * DPR;
+ctx.beginPath();
+ctx.moveTo(wallX + wallW + 12 * DPR, yCp);
+ctx.lineTo(wallX + wallW + 12 * DPR + vec, yCp);
+ctx.stroke();
+
+ctx.fillStyle = "#ef4444";
+ctx.beginPath();
+ctx.moveTo(wallX + wallW + 12 * DPR + vec, yCp);
+ctx.lineTo(wallX + wallW + 8 * DPR + vec, yCp - 6 * DPR);
+ctx.lineTo(wallX + wallW + 8 * DPR + vec, yCp + 6 * DPR);
+ctx.closePath();
+ctx.fill();
+
         ctx.strokeStyle = "#c5c5c5";
         ctx.strokeRect(wallX, fluidTop, wallW, fluidHeight);
 
@@ -167,9 +198,13 @@
 
           {/* Visualización */}
           <div className="lg:col-span-2 flex flex-col gap-6">
-            <div className="bg-white p-4 rounded-xl shadow-md">
-              <canvas ref={canvasRef} className="w-full h-[400px] rounded-lg" />
-            </div>
+          <div className="bg-white p-4 rounded-xl shadow-md flex justify-center">
+            <canvas
+              ref={canvasRef}
+              className="w-[95%] max-w-[800px] h-[420px] rounded-lg"
+            />
+          </div>
+
 
             {/* Resultados */}
             <div className="bg-white p-4 rounded-xl shadow-md">
