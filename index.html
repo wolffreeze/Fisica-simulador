@@ -362,7 +362,7 @@
     const yCp = fillH > 0 ? (fluidTop + fluidHeight - (hc_current / Math.max(h,0.0001)) * fluidHeight) : (fluidTop + fluidHeight);
 
     // compute current force (approx)
-    const rho = parseFloat(rhoEl.value)||0;
+    //const rho = parseFloat(rhoEl.value)||0;
     const g = parseFloat(gEl.value)||9.81;
     const Fcurrent = rho * g * hc_current * (parseFloat(areaEl.value)||0);
     const Ffinal = finalForce(rho, g, h, parseFloat(areaEl.value)||0);
@@ -413,7 +413,7 @@
     cctx.save();
 
     // read params
-    const rho = parseFloat(rhoEl.value)||0;
+    //const rho = parseFloat(rhoEl.value)||0;
     const g = parseFloat(gEl.value)||9.81;
     const h = parseFloat(hEl.value)||0;
     const steps = Math.max(8, parseInt(stepsEl.value)||30);
