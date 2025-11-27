@@ -269,97 +269,89 @@
   }
 
   /* === GRÁFICO (Versión mejorada estilo anterior) === */
-function drawChart(){
-  const W = chart.width, H = chart.height;
-  cctx.clearRect(0,0,W,H);
-  cctx.save();
+function drawChart() {
+    const ctx = chartCanvas.getContext("2d");
+    const W = chartCanvas.width;
+    const H = chartCanvas.height;
 
-  const rho = +rhoEl.value;
-  const g = +gEl.value;
-  const h = +hEl.value;
-  const steps = +stepsEl.value;
+    ctx.clearRect(0,0,W,H);
 
-  const ml = 44 * DPR, mr = 18 * DPR, mt = 22 * DPR, mb = 32 * DPR;
-  const pw = W - ml - mr, ph = H - mt - mb;
+    const ml = 60;    // margen izquierda
+    const mr = 20;    // margen derecha
+    const mt = 20;    // margen top
+    const mb = 40;    // margen bottom
 
-  // Fondo degradado oscuro
-  const bg = cctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, "#1b1230");
-  bg.addColorStop(1, "#25173a");
-  cctx.fillStyle = bg;
-  cctx.fillRect(0, 0, W, H);
+    const pw = W - ml - mr;
+    const ph = H - mt - mb;
 
-  // Marcos / Ejes suaves
-  cctx.strokeStyle = "rgba(255,255,255,0.07)";
-  cctx.lineWidth = 1;
-  cctx.beginPath();
-  cctx.moveTo(ml, mt);
-  cctx.lineTo(ml, mt + ph);
-  cctx.lineTo(ml + pw, mt + ph);
-  cctx.stroke();
+    // Fondo
+    ctx.fillStyle = "#1c1630";
+    ctx.fillRect(0,0,W,H);
 
-  const Pmax = pressureAt(h, rho, g);
+    // Líneas horizontales
+    ctx.strokeStyle = "rgba(255,255,255,0.08)";
+    ctx.lineWidth = 1;
 
-  /* —— Líneas horizontales suaves —— */
-  cctx.font = `${11 * DPR}px Inter`;
-  for (let i = 0; i <= 4; i++) {
-    const y = mt + (i / 4) * ph;
+    const depthSteps = 4;
+    for (let i = 0; i <= depthSteps; i++) {
+        const y = mt + (i / depthSteps) * ph;
+        ctx.beginPath();
+        ctx.moveTo(ml, y);
+        ctx.lineTo(W - mr, y);
+        ctx.stroke();
+    }
 
-    cctx.strokeStyle = "rgba(255,255,255,0.03)";
-    cctx.beginPath();
-    cctx.moveTo(ml, y);
-    cctx.lineTo(ml + pw, y);
-    cctx.stroke();
+    // Cálculo presión base
+    const Ptop = P0;
+    const Pbot = P0 + rho * g * h;
 
-    const val = Math.round(Pmax - (i / 4) * (Pmax - P0));
-    cctx.fillStyle = "rgba(210,220,255,0.6)";
-    cctx.fillText(val + " Pa", ml - 40 * DPR, y + 4);
-  }
+    // Etiquetas
+    ctx.fillStyle = "white";
+    ctx.font = "13px Inter";
 
-  /* —— Curva P(h) —— */
-  cctx.lineWidth = 3 * DPR;
-  cctx.strokeStyle = "rgba(154,179,255,0.95)";
-  cctx.beginPath();
+    for (let i = 0; i <= 4; i++) {
+        const frac = i / 4;
 
-  for (let i = 0; i <= steps; i++) {
-    const fr = i / steps;
-    const depth = fr * h;
-    const P = pressureAt(depth, rho, g);
-    const x = ml + ((P - P0) / (Pmax - P0 || 1)) * pw;
-    const y = mt + fr * ph;
-    if (i === 0) cctx.moveTo(x, y);
-    else cctx.lineTo(x, y);
-  }
-  cctx.stroke();
+        // AHORA CORRECTO: presión aumenta con profundidad
+        const pVal = Math.round(Ptop + frac * (Pbot - Ptop));
 
-  /* —— Punto brillante (nivel actual) —— */
-  const lvl = progress * h;
-  const fr = h === 0 ? 0 : lvl / h;
-  const Pcur = pressureAt(lvl, rho, g);
-  const xcur = ml + ((Pcur - P0) / (Pmax - P0 || 1)) * pw;
-  const ycur = mt + fr * ph;
+        const y = mt + frac * ph;
 
-  // Halo
-  cctx.beginPath();
-  cctx.fillStyle = "rgba(154,179,255,0.18)";
-  cctx.arc(xcur, ycur, 9 * DPR, 0, Math.PI * 2);
-  cctx.fill();
+        ctx.fillText(`${pVal} Pa`, 10, y + 4);
+    }
 
-  // Punto
-  cctx.beginPath();
-  cctx.fillStyle = "#dff3ff";
-  cctx.arc(xcur, ycur, 4 * DPR, 0, Math.PI * 2);
-  cctx.fill();
+    // Curva presión vs profundidad
+    ctx.strokeStyle = "rgba(150,180,255,0.85)";
+    ctx.lineWidth = 3;
 
-  // Etiqueta
-  cctx.font = `${12 * DPR}px Inter`;
-  cctx.fillStyle = "rgba(235,240,255,0.9)";
-  const lx = Math.min(xcur + 12 * DPR, ml + pw - 60 * DPR);
-  const ly = Math.max(mt + 20 * DPR, ycur - 12 * DPR);
-  cctx.fillText(`${Math.round(Pcur)} Pa`, lx, ly);
+    ctx.beginPath();
 
-  cctx.restore();
+    for (let i = 0; i <= 50; i++) {
+        const frac = i / 50;
+        const P = Ptop + frac * (Pbot - Ptop);
+
+        // AHORA EL GRÁFICO VA HACIA ABAJO
+        const x = ml + frac * pw;
+        const y = mt + frac * ph;
+
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+
+    ctx.stroke();
+
+    // Punto final (presión máxima)
+    const xEnd = ml + pw;
+    const yEnd = mt + ph;
+
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(xEnd, yEnd, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillText(`${Math.round(Pbot)} Pa`, xEnd - 45, yEnd - 10);
 }
+
 
 
   /* === LOOP === */
