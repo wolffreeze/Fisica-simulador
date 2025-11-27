@@ -268,68 +268,99 @@
     }
   }
 
-  /* === GRÁFICO === */
-  function drawChart(){
-    const W = chart.width, H = chart.height;
-    cctx.clearRect(0,0,W,H);
+  /* === GRÁFICO (Versión mejorada estilo anterior) === */
+function drawChart(){
+  const W = chart.width, H = chart.height;
+  cctx.clearRect(0,0,W,H);
+  cctx.save();
 
-    const rho = +rhoEl.value;
-    const g = +gEl.value;
-    const h = +hEl.value;
-    const steps = +stepsEl.value;
+  const rho = +rhoEl.value;
+  const g = +gEl.value;
+  const h = +hEl.value;
+  const steps = +stepsEl.value;
 
-    const ml=40*DPR, mr=20*DPR, mt=20*DPR, mb=30*DPR;
-    const pw=W-ml-mr, ph=H-mt-mb;
+  const ml = 44 * DPR, mr = 18 * DPR, mt = 22 * DPR, mb = 32 * DPR;
+  const pw = W - ml - mr, ph = H - mt - mb;
 
-    const Pmax = pressureAt(h,rho,g);
+  // Fondo degradado oscuro
+  const bg = cctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, "#1b1230");
+  bg.addColorStop(1, "#25173a");
+  cctx.fillStyle = bg;
+  cctx.fillRect(0, 0, W, H);
 
-    // Fondo
-    cctx.fillStyle="#25173a";
-    cctx.fillRect(0,0,W,H);
+  // Marcos / Ejes suaves
+  cctx.strokeStyle = "rgba(255,255,255,0.07)";
+  cctx.lineWidth = 1;
+  cctx.beginPath();
+  cctx.moveTo(ml, mt);
+  cctx.lineTo(ml, mt + ph);
+  cctx.lineTo(ml + pw, mt + ph);
+  cctx.stroke();
 
-    // Ejes
-    cctx.strokeStyle="#ffffff22";
+  const Pmax = pressureAt(h, rho, g);
+
+  /* —— Líneas horizontales suaves —— */
+  cctx.font = `${11 * DPR}px Inter`;
+  for (let i = 0; i <= 4; i++) {
+    const y = mt + (i / 4) * ph;
+
+    cctx.strokeStyle = "rgba(255,255,255,0.03)";
     cctx.beginPath();
-    cctx.moveTo(ml,mt);
-    cctx.lineTo(ml,mt+ph);
-    cctx.lineTo(ml+pw,mt+ph);
+    cctx.moveTo(ml, y);
+    cctx.lineTo(ml + pw, y);
     cctx.stroke();
 
-    // Curva
-    cctx.beginPath();
-    for(let i=0;i<=steps;i++){
-      const fr=i/steps;
-      const depth=fr*h;
-      const P=pressureAt(depth,rho,g);
-      const x=ml + ((P-P0)/(Pmax-P0||1))*pw;
-      const y=mt + fr*ph;
-      if(i===0) cctx.moveTo(x,y);
-      else cctx.lineTo(x,y);
-    }
-    cctx.strokeStyle="#9ab3ff";
-    cctx.lineWidth=2*DPR;
-    cctx.stroke();
-
-    // Punto actual
-    const level = progress*h;
-    const fr = h===0?0:level/h;
-    const Pcur = pressureAt(level,rho,g);
-    const xcur = ml + ((Pcur-P0)/(Pmax-P0||1))*pw;
-    const ycur = mt + fr*ph;
-
-    cctx.fillStyle="#9ab3ff44";
-    cctx.beginPath();
-    cctx.arc(xcur,ycur,8*DPR,0,Math.PI*2);
-    cctx.fill();
-
-    cctx.fillStyle="#dff3ff";
-    cctx.beginPath();
-    cctx.arc(xcur,ycur,3*DPR,0,Math.PI*2);
-    cctx.fill();
-
-    cctx.fillStyle="#eee";
-    cctx.fillText(Math.round(Pcur)+" Pa", xcur+10*DPR, ycur-10*DPR);
+    const val = Math.round(Pmax - (i / 4) * (Pmax - P0));
+    cctx.fillStyle = "rgba(210,220,255,0.6)";
+    cctx.fillText(val + " Pa", ml - 40 * DPR, y + 4);
   }
+
+  /* —— Curva P(h) —— */
+  cctx.lineWidth = 3 * DPR;
+  cctx.strokeStyle = "rgba(154,179,255,0.95)";
+  cctx.beginPath();
+
+  for (let i = 0; i <= steps; i++) {
+    const fr = i / steps;
+    const depth = fr * h;
+    const P = pressureAt(depth, rho, g);
+    const x = ml + ((P - P0) / (Pmax - P0 || 1)) * pw;
+    const y = mt + fr * ph;
+    if (i === 0) cctx.moveTo(x, y);
+    else cctx.lineTo(x, y);
+  }
+  cctx.stroke();
+
+  /* —— Punto brillante (nivel actual) —— */
+  const lvl = progress * h;
+  const fr = h === 0 ? 0 : lvl / h;
+  const Pcur = pressureAt(lvl, rho, g);
+  const xcur = ml + ((Pcur - P0) / (Pmax - P0 || 1)) * pw;
+  const ycur = mt + fr * ph;
+
+  // Halo
+  cctx.beginPath();
+  cctx.fillStyle = "rgba(154,179,255,0.18)";
+  cctx.arc(xcur, ycur, 9 * DPR, 0, Math.PI * 2);
+  cctx.fill();
+
+  // Punto
+  cctx.beginPath();
+  cctx.fillStyle = "#dff3ff";
+  cctx.arc(xcur, ycur, 4 * DPR, 0, Math.PI * 2);
+  cctx.fill();
+
+  // Etiqueta
+  cctx.font = `${12 * DPR}px Inter`;
+  cctx.fillStyle = "rgba(235,240,255,0.9)";
+  const lx = Math.min(xcur + 12 * DPR, ml + pw - 60 * DPR);
+  const ly = Math.max(mt + 20 * DPR, ycur - 12 * DPR);
+  cctx.fillText(`${Math.round(Pcur)} Pa`, lx, ly);
+
+  cctx.restore();
+}
+
 
   /* === LOOP === */
   function loop(ts){
