@@ -141,7 +141,7 @@ function startSimulation() {
 
     document.getElementById('results').innerHTML = `
         <b>Presión a ${h} m:</b> ${P.toFixed(0)} Pa <br>
-        <b>Fuerza sobre la superficie:</b> ${F.toFixed(2)} N <br>
+        <b>Fuerza sobre la superficie:</b> ${(F.toFixed(2) / 2)} N <br>
         <b>Profundidad del centroide:</b> ${centroid.toFixed(2)} m
     `;
 
