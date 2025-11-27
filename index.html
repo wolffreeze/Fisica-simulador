@@ -237,28 +237,37 @@ function drawChart(progress) {
     ctx.lineWidth = 3;
     ctx.beginPath();
 
-    const steps = 50;
-for (let i = 0; i <= steps * maxFrac; i++) {
-        const frac = i / steps;
-        // Profundidad y presión MÁXIMA (fijas)
-const Pmax = P0 + rho * g * H;
+    const maxFrac = depthNow / H;
 
-// Líneas hasta la profundidad actual
-const maxFrac = depthNow / H;
+// Línea de presión vs profundidad (parcial según animación)
+ctx.strokeStyle = "#7d6df0";
+ctx.lineWidth = 3;
+ctx.beginPath();
 
-// Dibujo de la curva SOLO hasta la profundidad animada
-const depth = H * frac;            // 🔥 profundidad REAL del eje
-const P = P0 + rho * g * depth;    // 🔥 presión REAL del eje
+const steps = 50;
+const maxSteps = Math.floor(steps * maxFrac);   // 🔥 cantidad de segmentos visibles
 
-// Posición
-const x = ml + frac * pw;
-const fracY = depth / H;           // 🔥 altura según profundidad global
-const y = mt + fracY * ph;
+for (let i = 0; i <= maxSteps; i++) {
 
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
+    // fracción global (0 a 1) para el eje completo
+    const frac = i / steps;
+
+    // profundidad REAL correspondiente al eje
+    const depth = H * frac;
+
+    // presión REAL correspondiente al eje
+    const P = P0 + rho * g * depth;
+
+    // coordenadas
+    const x = ml + frac * pw;
+    const fracY = depth / H;      // 🔥 profundidad normalizada (0–1)
+    const y = mt + fracY * ph;
+
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+}
+
+ctx.stroke();
 
     // ======== PUNTO QUE SE MUEVE ========
     const Ppoint = P0 + rho * g * depthNow;
