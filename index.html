@@ -1,476 +1,896 @@
 <!doctype html>
+
 <html lang="es">
+
 <head>
+
 <meta charset="utf-8"/>
+
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
 <title>Simulador Hidrostático — Dark Purple Soft</title>
+
 <style>
-  :root{
-    --bg1: #120c20;
-    --bg2: #1d1433;
-    --panel: #2a2040;
-    --panel-2: #342745;
-    --muted: #bfb4d9;
-    --muted-2: #a899c6;
-    --text: #efe9ff;
-    --accent: #9ab3ff;
-    --accent-2: #7df0c8;
-    --glow: rgba(157,114,200,0.14);
-    --shadow: 0 10px 30px rgba(10,8,18,0.6);
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    min-height:100vh;
-    background: linear-gradient(180deg,var(--bg1),var(--bg2));
-    color:var(--text);
-    padding:20px;
-  }
 
-  .app{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:320px 1fr;gap:20px}
-  .panel{background:linear-gradient(180deg,var(--panel),var(--panel-2));border-radius:12px;padding:16px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.03)}
-  .sidebar{height:calc(100vh - 40px);overflow:auto}
-  h1{margin:0;font-size:18px;color:var(--text)}
-  .muted{color:var(--muted);font-size:13px}
-  .control{margin-top:12px}
-  label{display:block;font-weight:600;font-size:13px;margin-bottom:6px;color:var(--muted-2)}
-  input[type=number]{width:100%;padding:9px;border-radius:9px;border:1px solid rgba(255,255,255,0.04);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:var(--text)}
-  input[type=range]{width:100%}
-  .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-  button{cursor:pointer;border:0;padding:9px 12px;border-radius:9px;font-weight:700;background:transparent;color:var(--text)}
-  .btn-primary{background:linear-gradient(90deg,var(--accent),#7fb8ff);color:#0b1b2b;box-shadow:0 6px 18px rgba(55,95,195,0.12)}
-  .btn-soft{background:rgba(125,240,200,0.12);color:var(--accent-2)}
-  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04)}
-  .small{font-size:13px;color:var(--muted)}
-  .main{display:flex;flex-direction:column;gap:14px}
-  .canvas-area{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
-  #visCanvas{width:100%;height:460px;border-radius:10px;background:linear-gradient(180deg,#1b1230,#26173f)}
-  #chartCanvas{width:360px;height:260px;border-radius:10px;background:linear-gradient(180deg,#241533,#2d1a3b)}
-  .results{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-  .result-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
-  .result-card .label{font-size:12px;color:var(--muted-2)}
-  .result-card .value{font-weight:800;font-size:18px;color:var(--text)}
-  footer.small{color:var(--muted);margin-top:12px}
+  :root{
 
-  @media(max-width:980px){
-    .app{grid-template-columns:1fr;padding:12px}
-    .sidebar{height:auto;order:2}
-    .main{order:1}
-    #chartCanvas{width:100%}
-  }
+    --bg1: #120c20;
+
+    --bg2: #1d1433;
+
+    --panel: #2a2040;
+
+    --panel-2: #342745;
+
+    --muted: #bfb4d9;
+
+    --muted-2: #a899c6;
+
+    --text: #efe9ff;
+
+    --accent: #9ab3ff;
+
+    --accent-2: #7df0c8;
+
+    --glow: rgba(157,114,200,0.14);
+
+    --shadow: 0 10px 30px rgba(10,8,18,0.6);
+
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto;
+
+  }
+
+  *{box-sizing:border-box}
+
+  html,body{height:100%}
+
+  body{
+
+    margin:0;
+
+    min-height:100vh;
+
+    background: linear-gradient(180deg,var(--bg1),var(--bg2));
+
+    color:var(--text);
+
+    padding:20px;
+
+  }
+
+
+
+  .app{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:320px 1fr;gap:20px}
+
+  .panel{background:linear-gradient(180deg,var(--panel),var(--panel-2));border-radius:12px;padding:16px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.03)}
+
+  .sidebar{height:calc(100vh - 40px);overflow:auto}
+
+  h1{margin:0;font-size:18px;color:var(--text)}
+
+  .muted{color:var(--muted);font-size:13px}
+
+  .control{margin-top:12px}
+
+  label{display:block;font-weight:600;font-size:13px;margin-bottom:6px;color:var(--muted-2)}
+
+  input[type=number]{width:100%;padding:9px;border-radius:9px;border:1px solid rgba(255,255,255,0.04);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:var(--text)}
+
+  input[type=range]{width:100%}
+
+  .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+  button{cursor:pointer;border:0;padding:9px 12px;border-radius:9px;font-weight:700;background:transparent;color:var(--text)}
+
+  .btn-primary{background:linear-gradient(90deg,var(--accent),#7fb8ff);color:#0b1b2b;box-shadow:0 6px 18px rgba(55,95,195,0.12)}
+
+  .btn-soft{background:rgba(125,240,200,0.12);color:var(--accent-2)}
+
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04)}
+
+  .small{font-size:13px;color:var(--muted)}
+
+  .main{display:flex;flex-direction:column;gap:14px}
+
+  .canvas-area{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+
+  #visCanvas{width:100%;height:460px;border-radius:10px;background:linear-gradient(180deg,#1b1230,#26173f)}
+
+  #chartCanvas{width:360px;height:260px;border-radius:10px;background:linear-gradient(180deg,#241533,#2d1a3b)}
+
+  .results{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+
+  .result-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+
+  .result-card .label{font-size:12px;color:var(--muted-2)}
+
+  .result-card .value{font-weight:800;font-size:18px;color:var(--text)}
+
+  footer.small{color:var(--muted);margin-top:12px}
+
+
+
+  @media(max-width:980px){
+
+    .app{grid-template-columns:1fr;padding:12px}
+
+    .sidebar{height:auto;order:2}
+
+    .main{order:1}
+
+    #chartCanvas{width:100%}
+
+  }
+
 </style>
+
 </head>
+
 <body>
-  <div class="app">
-    <aside class="panel sidebar">
-      <h1>Simulador Hidrostático — Educativo</h1>
-      <p class="muted" style="margin-top:6px">Simulación con curva P(h), llenado animado y cálculos en tiempo real.</p>
 
-      <div class="control">
-        <label for="rho">Densidad ρ (kg/m³)</label>
-        <input id="rho" type="number" value="1000">
-        <div class="small">Agua: 1000, Aceite: ~850</div>
-      </div>
+  <div class="app">
 
-      <div class="control">
-        <label for="g">Gravedad g (m/s²)</label>
-        <input id="g" type="number" value="9.81">
-        <div class="small">Tierra: 9.81, Luna: 1.62</div>
-      </div>
+    <aside class="panel sidebar">
 
-      <div class="control">
-        <label for="h">Altura h (m)</label>
-        <input id="h" type="number" value="2">
-      </div>
+      <h1>Simulador Hidrostático — Educativo</h1>
 
-      <div class="control">
-        <label for="area">Área A (m²)</label>
-        <input id="area" type="number" value="1">
-      </div>
+      <p class="muted" style="margin-top:6px">Simulación con curva P(h), llenado animado y cálculos en tiempo real.</p>
 
-      <div class="control">
-        <label for="steps">Resolución</label>
-        <input id="steps" type="range" min="8" max="120" value="40">
-      </div>
 
-      <div class="control">
-        <label for="speed">Velocidad</label>
-        <input id="speed" type="range" min="0.25" max="3" step="0.05" value="1">
-        <div class="small">Velocidad: <span id="speedTxt">1.00x</span></div>
-      </div>
 
-      <div class="buttons">
-        <button id="case1" class="btn-primary">Caso 1 (Agua)</button>
-        <button id="case2" class="btn-soft">Caso 2 (Aceite)</button>
-      </div>
+      <div class="control">
 
-      <div class="buttons">
-        <button id="start" class="btn-primary">Iniciar</button>
-        <button id="pauseResume" class="btn-ghost">Pausar</button>
-        <button id="reset" class="btn-ghost">Reiniciar</button>
-      </div>
+        <label for="rho">Densidad ρ (kg/m³)</label>
 
-      <div class="buttons">
-        <button id="download" class="btn-soft">Descargar imagen</button>
-        <button id="copy" class="btn-ghost">Copiar parámetros</button>
-      </div>
+        <input id="rho" type="number" value="1000">
 
-      <footer class="small">Hecho para LRPD · 2025</footer>
-    </aside>
+      </div>
 
-    <main class="main panel">
-      <div class="canvas-area">
-        <div style="flex:1">
-          <canvas id="visCanvas"></canvas>
-          <div style="display:flex;justify-content:space-between;margin-top:10px">
-            <div class="small">Nivel: <strong id="lvl">0.00 m</strong></div>
-            <div class="small">Presión en base: <strong id="pbase">101325 Pa</strong></div>
-          </div>
-        </div>
 
-        <div style="width:360px">
-          <canvas id="chartCanvas"></canvas>
-          <div style="margin-top:8px" class="small">Curva: Presión vs Profundidad</div>
-        </div>
-      </div>
 
-      <div class="results">
-        <div class="result-card"><div class="label">Presión (máx)</div><div id="resP" class="value">—</div></div>
-        <div class="result-card"><div class="label">Fuerza total</div><div id="resF" class="value">—</div></div>
-        <div class="result-card"><div class="label">Centro de Presión (h_c)</div><div id="resHc" class="value">—</div></div>
-        <div class="result-card"><div class="label">Parámetros</div><div id="resParams" class="small">—</div></div>
-      </div>
-    </main>
-  </div>
+      <div class="control">
+
+        <label for="g">Gravedad g (m/s²)</label>
+
+        <input id="g" type="number" value="9.81">
+
+      </div>
+
+
+
+      <div class="control">
+
+        <label for="h">Altura h (m)</label>
+
+        <input id="h" type="number" value="2">
+
+      </div>
+
+
+
+      <div class="control">
+
+        <label for="area">Área A (m²)</label>
+
+        <input id="area" type="number" value="1">
+
+      </div>
+
+
+
+      <div class="control">
+
+        <label for="steps">Resolución</label>
+
+        <input id="steps" type="range" min="8" max="120" value="40">
+
+      </div>
+
+
+
+      <div class="control">
+
+        <label for="speed">Velocidad</label>
+
+        <input id="speed" type="range" min="0.25" max="3" step="0.05" value="1">
+
+        <div class="small">Velocidad: <span id="speedTxt">1.00x</span></div>
+
+      </div>
+
+
+
+      <div class="buttons">
+
+        <button id="case1" class="btn-primary">Caso 1 (Agua)</button>
+
+        <button id="case2" class="btn-soft">Caso 2 (Aceite)</button>
+
+      </div>
+
+
+
+      <div class="buttons">
+
+        <button id="start" class="btn-primary">Iniciar</button>
+
+        <button id="pauseResume" class="btn-ghost">Pausar</button>
+
+        <button id="reset" class="btn-ghost">Reiniciar</button>
+
+      </div>
+
+
+
+      <div class="buttons">
+
+        <button id="download" class="btn-soft">Descargar imagen</button>
+
+        <button id="copy" class="btn-ghost">Copiar parámetros</button>
+
+      </div>
+
+
+
+      <footer class="small">Hecho para LRPD · 2025</footer>
+
+    </aside>
+
+
+
+    <main class="main panel">
+
+      <div class="canvas-area">
+
+        <div style="flex:1">
+
+          <canvas id="visCanvas"></canvas>
+
+          <div style="display:flex;justify-content:space-between;margin-top:10px">
+
+            <div class="small">Nivel: <strong id="lvl">0.00 m</strong></div>
+
+            <div class="small">Presión en base: <strong id="pbase">101325 Pa</strong></div>
+
+          </div>
+
+        </div>
+
+
+
+        <div style="width:360px">
+
+          <canvas id="chartCanvas"></canvas>
+
+          <div style="margin-top:8px" class="small">Curva: Presión vs Profundidad</div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="results">
+
+        <div class="result-card"><div class="label">Presión (base)</div><div id="resP" class="value">—</div></div>
+
+        <div class="result-card"><div class="label">Fuerza total</div><div id="resF" class="value">—</div></div>
+
+        <div class="result-card"><div class="label">Centroide</div><div id="resHc" class="value">—</div></div>
+
+        <div class="result-card"><div class="label">Parámetros</div><div id="resParams" class="small">—</div></div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+
 
 <script>
+
 /* ==========================
-   SIMULADOR HIDROSTÁTICO
-   ========================== */
+
+   SIMULADOR HIDROSTÁTICO
+
+   ========================== */
+
+
 
 (function(){
-  const vis = document.getElementById('visCanvas');
-  const chart = document.getElementById('chartCanvas');
-  const ctx = vis.getContext('2d');
-  const cctx = chart.getContext('2d');
-  const DPR = window.devicePixelRatio || 1;
 
-  const rhoEl = document.getElementById('rho');
-  const gEl = document.getElementById('g');
-  const hEl = document.getElementById('h');
-  const areaEl = document.getElementById('area');
-  const stepsEl = document.getElementById('steps');
-  const speedEl = document.getElementById('speed');
-  const speedTxt = document.getElementById('speedTxt');
+  const vis = document.getElementById('visCanvas');
 
-  const startBtn = document.getElementById('start');
-  const pauseBtn = document.getElementById('pauseResume');
-  const resetBtn = document.getElementById('reset');
-  const downloadBtn = document.getElementById('download');
-  const copyBtn = document.getElementById('copy');
+  const chart = document.getElementById('chartCanvas');
 
-  const case1Btn = document.getElementById('case1');
-  const case2Btn = document.getElementById('case2');
+  const ctx = vis.getContext('2d');
 
-  const resP = document.getElementById('resP');
-  const resF = document.getElementById('resF');
-  const resHc = document.getElementById('resHc');
-  const resParams = document.getElementById('resParams');
-  const lvlLabel = document.getElementById('lvl');
-  const pbaseLabel = document.getElementById('pbase');
+  const cctx = chart.getContext('2d');
 
-  let anim = false;
-  let last = null;
-  let progress = 0;
-  const P0 = 101325; // Presión atmosférica
-  const baseDuration = 2.2;
-
-  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-  function fmt(x,unit){ return (Math.round(x*100)/100) + (unit?" "+unit:""); }
-
-  function pressureAt(depth,rho,g){ return P0 + rho*g*depth; }
-  function finalForce(rho,g,h,A){ return rho*g*(h/2)*A; }
-
-  function resize(){
-    // set canvas pixel size using DPR to keep rendering sharp
-    vis.width = Math.max(1, Math.floor(vis.clientWidth * DPR));
-    vis.height = Math.max(1, Math.floor(vis.clientHeight * DPR));
-
-    chart.width = Math.max(1, Math.floor(chart.clientWidth * DPR));
-    chart.height = Math.max(1, Math.floor(chart.clientHeight * DPR));
-
-    draw();
-    // Corregido: Llamar a drawChart con el progreso actual
-    drawChart(+rhoEl.value, +gEl.value, +hEl.value, progress);
-  }
-  window.addEventListener('resize', resize);
-  setTimeout(resize,80);
-
-  /* === DIBUJO PRINCIPAL === */
-  function draw(){
-    const rho = +rhoEl.value;
-    const g = +gEl.value;
-    const h = +hEl.value;
-    const A = +areaEl.value;
-    const steps = +stepsEl.value;
-
-    const W = vis.width, H = vis.height;
-    ctx.clearRect(0,0,W,H);
-
-    const pad = 30*DPR;
-    const left = pad;
-    const top = pad;
-    const wBox = W*0.46;
-    const hBox = H - pad*2;
-
-    // Fondo del contenedor
-    ctx.fillStyle = "#1a1530";
-    ctx.fillRect(left,top,wBox,hBox);
-
-    // Nivel actual
-    const currentLevel = progress * h;
-    const frac = h===0 ? 0 : currentLevel/h;
-    const hFill = frac * hBox;
-    
-    // Llenado (Líquido)
-    ctx.fillStyle = "#3fa9ff33";
-    ctx.fillRect(left, top + (hBox - hFill), wBox, hFill);
-
-    lvlLabel.textContent = currentLevel.toFixed(2)+" m";
-    pbaseLabel.textContent = Math.round(pressureAt(currentLevel,rho,g))+" Pa";
-
-    // Datos finales (de la simulación máxima)
-    const Pbase = pressureAt(h,rho,g);
-    const F = finalForce(rho,g,h,A);
-    resP.textContent = fmt(Pbase,"Pa");
-    resF.textContent = fmt(F,"N");
-    resHc.textContent = fmt(h/2,"m");
-    resParams.textContent = `ρ=${rho} kg/m³ · g=${g} · h=${h} m · A=${A} m²`;
-
-    // Representación de Barras de Presión
-    const barX = left + wBox + 20*DPR;
-    const maxBar = W*0.22;
-    ctx.fillStyle = "#ffffff33";
-
-    for(let i=0;i<=steps;i++){
-      const fr = i/steps;
-      const depth = fr*h;
-      const y = top + fr*hBox;
-      
-      if (depth <= currentLevel) {
-        const P = pressureAt(depth,rho,g);
-        // Usar la presión hidrostática máxima (Pbase - P0) para la escala
-        const maxHydroP = (Pbase - P0) || 1;
-        const rel = (P - P0) / maxHydroP; 
-        const bw = rel * maxBar; 
-
-        ctx.fillRect(barX, y-3*DPR, bw, 6*DPR);
-
-        if(i % Math.ceil(steps/6)===0){
-          ctx.fillStyle="#ccc";
-          ctx.fillText(depth.toFixed(2)+" m", barX + bw + 6*DPR, y);
-          ctx.fillStyle="#aaa";
-          ctx.fillText(Math.round(P)+" Pa", barX + bw + 75*DPR, y);
-        }
-        ctx.fillStyle="#ffffff33";
-      }
-    }
-  }
-
-  /* === GRÁFICO (Presión vs. Profundidad) CORREGIDO === */
-  function drawChart(rho, g, h, progress) {
-    // El nivel actual del líquido (profundidad en el punto más bajo)
-    const currentLevel = progress * h;
-    // Fracción de la altura total que se ha llenado
-    const currentFrac = h === 0 ? 0 : currentLevel / h;
-
-    const ctx = cctx;
-    const W = chart.width;
-    const H = chart.height;
-
-    ctx.clearRect(0,0,W,H);
-
-    const ml = 60;    // margen izquierda (para etiquetas P)
-    const mr = 20;    // margen derecha
-    const mt = 20;    // margen top (presión P0)
-    const mb = 40;    // margen bottom (presión máx)
-
-    const pw = W - ml - mr; // Ancho de la zona de dibujo
-    const ph = H - mt - mb; // Alto de la zona de dibujo
-
-    // Fondo
-    ctx.fillStyle = "#1c1630";
-    ctx.fillRect(0,0,W,H);
-
-    // --- Ejes y Etiquetas (Fijos para el máximo h) ---
-    const PtopMax = P0; // Presión inicial
-    const PbotMax = P0 + (rho * g * h); // Presión final (máxima)
-
-    // Líneas horizontales
-    ctx.strokeStyle = "rgba(255,255,255,0.08)";
-    ctx.lineWidth = 1;
-
-    const depthSteps = 4;
-    for (let i = 0; i <= depthSteps; i++) {
-        const frac = i / depthSteps;
-        const y = mt + frac * ph;
-        ctx.beginPath();
-        ctx.moveTo(ml, y);
-        ctx.lineTo(W - mr, y);
-        ctx.stroke();
-    }
-
-    // Etiquetas de Presión (eje vertical)
-    ctx.fillStyle = "white";
-    ctx.font = Math.round(13 * DPR) + "px Inter";
-
-    for (let i = 0; i <= 4; i++) {
-        const frac = i / 4;
-        // El valor de P se calcula entre PtopMax y PbotMax
-        const pVal = Math.round(PtopMax + frac * (PbotMax - PtopMax));
-        const y = mt + frac * ph;
-        ctx.fillText(`${pVal} Pa`, 10, y + 4);
-    }
-
-    // --- Curva Presión vs Profundidad (Animada) ---
-    ctx.strokeStyle = "rgba(150,180,255,0.85)";
-    ctx.lineWidth = Math.max(1, 3 * DPR);
-
-    ctx.beginPath();
-
-    // Dibujar solo hasta el progreso actual
-    const numSteps = 50;
-    const stepsToDraw = Math.floor(numSteps * currentFrac); 
-
-    for (let i = 0; i <= stepsToDraw; i++) {
-        const frac = i / numSteps; // Fracción de la profundidad total (h)
-        
-        // El cálculo de P es lineal respecto a la profundidad
-        // P = P0 + rho*g*(frac*h)
-        // O: P = P0 + frac * (PbotMax - PtopMax)
-        const P = PtopMax + frac * (PbotMax - PtopMax);
-
-        // Las coordenadas X e Y son proporcionales a la profundidad (frac)
-        const x = ml + frac * pw;
-        const y = mt + frac * ph;
-
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-    }
-
-    ctx.stroke();
-
-    // Punto final y etiqueta (Presión al nivel actual)
-    const Pcurrent = pressureAt(currentLevel, rho, g);
-    const xEnd = ml + currentFrac * pw;
-    const yEnd = mt + currentFrac * ph;
-
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    ctx.arc(xEnd, yEnd, 6 * DPR, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Etiqueta del punto final
-    ctx.fillText(`${Math.round(Pcurrent)} Pa`, xEnd - 45 * DPR, yEnd - 10 * DPR);
-  }
+  const DPR = window.devicePixelRatio || 1;
 
 
 
-  /* === LOOP === */
-  function loop(ts){
-    if(!last) last = ts;
-    const dt = (ts-last)/1000;
-    last = ts;
+  const rhoEl = document.getElementById('rho');
 
-    const speed = +speedEl.value;
-    const rho = +rhoEl.value;
-    const g = +gEl.value;
-    const h = +hEl.value;
-    
-    speedTxt.textContent = speed.toFixed(2)+"x";
+  const gEl = document.getElementById('g');
 
-    if(anim){
-      progress += dt/(baseDuration/speed);
-      if(progress>=1){ progress=1; anim=false; }
-    }
+  const hEl = document.getElementById('h');
 
-    draw();
-    // Pasar el progreso para animar el gráfico
-    drawChart(rho, g, h, progress);
+  const areaEl = document.getElementById('area');
 
-    requestAnimationFrame(loop);
-  }
+  const stepsEl = document.getElementById('steps');
 
-  /* === BOTONES === */
-  startBtn.addEventListener('click', ()=>{
-    if(!anim){
-      if(progress>=1) progress=0;
-      anim=true;
-      last=performance.now();
-    }
-  });
+  const speedEl = document.getElementById('speed');
 
-  pauseBtn.addEventListener('click', ()=>{
-    anim = !anim;
-    last = performance.now();
-    pauseBtn.textContent = anim ? "Pausar" : "Reanudar";
-  });
+  const speedTxt = document.getElementById('speedTxt');
 
-  resetBtn.addEventListener('click', ()=>{
-    anim=false;
-    progress=0;
-    last=null;
-    pauseBtn.textContent="Pausar";
-    draw();
-    drawChart(+rhoEl.value, +gEl.value, +hEl.value, 0);
-  });
 
-  downloadBtn.addEventListener('click',()=>{
-    const tmp=document.createElement('canvas');
-    const w=vis.width+chart.width+20*DPR;
-    const h=Math.max(vis.height,chart.height);
-    tmp.width=w; tmp.height=h;
-    const tctx=tmp.getContext('2d');
-    tctx.fillStyle="#1b1230";
-    tctx.fillRect(0,0,w,h);
-    tctx.drawImage(vis,0,0);
-    tctx.drawImage(chart,vis.width+20*DPR,0);
-    const a=document.createElement('a');
-    a.href=tmp.toDataURL();
-    a.download="simulacion_hidrostatica.png";
-    a.click();
-  });
 
-  copyBtn.addEventListener('click',()=>{
-    const s=`rho=${rhoEl.value}, g=${gEl.value}, h=${hEl.value}, A=${areaEl.value}`;
-    navigator.clipboard.writeText(s);
-    copyBtn.textContent="Copiado ✓";
-    setTimeout(()=>copyBtn.textContent="Copiar parámetros",1000);
-  });
+  const startBtn = document.getElementById('start');
 
-  case1Btn.addEventListener('click',()=>{
-    rhoEl.value=1000; gEl.value=9.81; hEl.value=2; areaEl.value=1;
-    progress=0; anim=true; last=performance.now();
-  });
+  const pauseBtn = document.getElementById('pauseResume');
 
-  case2Btn.addEventListener('click',()=>{
-    rhoEl.value=850; gEl.value=9.81; hEl.value=1.5; areaEl.value=0.8;
-    progress=0; anim=true; last=performance.now();
-  });
+  const resetBtn = document.getElementById('reset');
 
-  [rhoEl,gEl,hEl,areaEl,stepsEl,speedEl].forEach(el=>{
-    el.addEventListener('input',()=>{
-      if(progress>1) progress=1;
-      draw(); 
-      drawChart(+rhoEl.value, +gEl.value, +hEl.value, progress);
-    });
-  });
+  const downloadBtn = document.getElementById('download');
 
-  requestAnimationFrame(loop);
+  const copyBtn = document.getElementById('copy');
+
+
+
+  const case1Btn = document.getElementById('case1');
+
+  const case2Btn = document.getElementById('case2');
+
+
+
+  const resP = document.getElementById('resP');
+
+  const resF = document.getElementById('resF');
+
+  const resHc = document.getElementById('resHc');
+
+  const resParams = document.getElementById('resParams');
+
+  const lvlLabel = document.getElementById('lvl');
+
+  const pbaseLabel = document.getElementById('pbase');
+
+
+
+  let anim = false;
+
+  let last = null;
+
+  let progress = 0;
+
+  const P0 = 101325;
+
+  const baseDuration = 2.2;
+
+
+
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+
+  function fmt(x,unit){ return (Math.round(x*100)/100) + (unit?" "+unit:""); }
+
+
+
+  function pressureAt(depth,rho,g){ return P0 + rho*g*depth; }
+
+  function finalForce(rho,g,h,A){ return rho*g*(h/2)*A; }
+
+
+
+  function resize(){
+
+    // set canvas pixel size using DPR to keep rendering sharp
+
+    vis.width = Math.max(1, Math.floor(vis.clientWidth * DPR));
+
+    vis.height = Math.max(1, Math.floor(vis.clientHeight * DPR));
+
+
+
+    chart.width = Math.max(1, Math.floor(chart.clientWidth * DPR));
+
+    chart.height = Math.max(1, Math.floor(chart.clientHeight * DPR));
+
+
+
+    draw();
+
+    drawChart();
+
+  }
+
+  window.addEventListener('resize', resize);
+
+  setTimeout(resize,80);
+
+
+
+  /* === DIBUJO PRINCIPAL === */
+
+  function draw(){
+
+    const rho = +rhoEl.value;
+
+    const g = +gEl.value;
+
+    const h = +hEl.value;
+
+    const A = +areaEl.value;
+
+    const steps = +stepsEl.value;
+
+
+
+    const W = vis.width, H = vis.height;
+
+    ctx.clearRect(0,0,W,H);
+
+
+
+    const pad = 30*DPR;
+
+    const left = pad;
+
+    const top = pad;
+
+    const wBox = W*0.46;
+
+    const hBox = H - pad*2;
+
+
+
+    // Fondo
+
+    ctx.fillStyle = "#1a1530";
+
+    ctx.fillRect(left,top,wBox,hBox);
+
+
+
+    // Nivel actual
+
+    const level = progress * h;
+
+    const frac = h===0 ? 0 : level/h;
+
+    const hFill = frac * hBox;
+
+    ctx.fillStyle = "#3fa9ff33";
+
+    ctx.fillRect(left, top + (hBox - hFill), wBox, hFill);
+
+
+
+    lvlLabel.textContent = level.toFixed(2)+" m";
+
+    pbaseLabel.textContent = Math.round(pressureAt(level,rho,g))+" Pa";
+
+
+
+    // Datos finales
+
+    const Pbase = pressureAt(h,rho,g);
+
+    const F = finalForce(rho,g,h,A);
+
+    resP.textContent = fmt(Pbase,"Pa");
+
+    resF.textContent = fmt(F,"N");
+
+    resHc.textContent = fmt(h/2,"m");
+
+    resParams.textContent = `ρ=${rho} kg/m³ · g=${g} · h=${h} m · A=${A} m²`;
+
+
+
+    // Barras
+
+    const barX = left + wBox + 20*DPR;
+
+    const maxBar = W*0.22;
+
+    ctx.fillStyle = "#ffffff33";
+
+
+
+    for(let i=0;i<=steps;i++){
+
+      const fr = i/steps;
+
+      const depth = fr*h;
+
+      const y = top + fr*hBox;
+
+      const P = pressureAt(depth,rho,g);
+
+      const rel = (P-P0)/(rho*g*h || 1);
+
+      const bw = rel * maxBar * frac;
+
+
+
+      ctx.fillRect(barX, y-3*DPR, bw, 6*DPR);
+
+
+
+      if(i % Math.ceil(steps/6)===0){
+
+        ctx.fillStyle="#ccc";
+
+        ctx.fillText(depth.toFixed(2)+" m", barX + bw + 6*DPR, y);
+
+        ctx.fillStyle="#aaa";
+
+        ctx.fillText(Math.round(P)+" Pa", barX + bw + 75*DPR, y);
+
+      }
+
+      ctx.fillStyle="#ffffff33";
+
+    }
+
+  }
+
+
+
+  /* === GRÁFICO (Versión mejorada estilo anterior) === */
+
+  function drawChart() {
+
+    // obtener entradas actuales
+
+    const rho = +rhoEl.value;
+
+    const g = +gEl.value;
+
+    const h = +hEl.value;
+
+
+
+    // usar el contexto ya creado (cctx) para el canvas chart
+
+    const ctx = cctx;
+
+    const W = chart.width;
+
+    const H = chart.height;
+
+
+
+    ctx.clearRect(0,0,W,H);
+
+
+
+    const ml = 60;    // margen izquierda
+
+    const mr = 20;    // margen derecha
+
+    const mt = 20;    // margen top
+
+    const mb = 40;    // margen bottom
+
+
+
+    const pw = W - ml - mr;
+
+    const ph = H - mt - mb;
+
+
+
+    // Fondo
+
+    ctx.fillStyle = "#1c1630";
+
+    ctx.fillRect(0,0,W,H);
+
+
+
+    // Líneas horizontales
+
+    ctx.strokeStyle = "rgba(255,255,255,0.08)";
+
+    ctx.lineWidth = 1;
+
+
+
+    const depthSteps = 4;
+
+    for (let i = 0; i <= depthSteps; i++) {
+
+        const y = mt + (i / depthSteps) * ph;
+
+        ctx.beginPath();
+
+        ctx.moveTo(ml, y);
+
+        ctx.lineTo(W - mr, y);
+
+        ctx.stroke();
+
+    }
+
+
+
+    // Cálculo presión base (presión absoluta en la visualización)
+
+    const depthNow = h * progress;     // 🔥 profundidad actual según animación
+const Ptop = P0;
+const Pbot = P0 + (rho * g * depthNow);   // 🔥 presión actual, no la final
+
+
+
+    // Etiquetas
+
+    ctx.fillStyle = "white";
+
+    ctx.font = Math.round(13 * DPR) + "px Inter";
+
+
+
+    for (let i = 0; i <= 4; i++) {
+
+        const frac = i / 4;
+
+
+
+        // presión entre Ptop y Pbot
+
+        const pVal = Math.round(Ptop + frac * (Pbot - Ptop));
+
+
+
+        const y = mt + frac * ph;
+
+
+
+        ctx.fillText(`${pVal} Pa`, 10, y + 4);
+
+    }
+
+
+
+    // Curva presión vs profundidad
+
+    ctx.strokeStyle = "rgba(150,180,255,0.85)";
+
+    ctx.lineWidth = Math.max(1, 3 * DPR);
+
+
+
+    ctx.beginPath();
+
+
+
+const stepsCurve = 50;
+for (let i = 0; i <= stepsCurve; i++) {
+    const frac = i / stepsCurve;
+    const depth = depthNow * frac;              // 🔥 curva hasta profundidad real
+    const P = Ptop + rho * g * depth;
+
+    const x = ml + frac * pw;
+    const y = mt + frac * ph;
+
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+}
+
+
+
+    ctx.stroke();
+
+
+
+    // Punto final (presión máxima)
+
+    const xEnd = ml + pw;
+
+    const yEnd = mt + ph;
+
+
+
+    ctx.fillStyle = "white";
+
+    ctx.beginPath();
+
+    ctx.arc(xEnd, yEnd, 6 * DPR, 0, Math.PI * 2);
+
+    ctx.fill();
+
+
+
+    ctx.fillText(`${Math.round(Pbot)} Pa`, xEnd - 45 * DPR, yEnd - 10 * DPR);
+
+  }
+
+
+
+
+
+
+
+  /* === LOOP === */
+
+  function loop(ts){
+
+    if(!last) last = ts;
+
+    const dt = (ts-last)/1000;
+
+    last = ts;
+
+
+
+    const speed = +speedEl.value;
+
+    speedTxt.textContent = speed.toFixed(2)+"x";
+
+
+
+    if(anim){
+
+      progress += dt/(2.2/speed);
+
+      if(progress>=1){ progress=1; anim=false; }
+
+    }
+
+
+
+    draw();
+
+    drawChart();
+
+
+
+    requestAnimationFrame(loop);
+
+  }
+
+
+
+  /* === BOTONES === */
+
+  startBtn.addEventListener('click', ()=>{
+
+    if(!anim){
+
+      if(progress>=1) progress=0;
+
+      anim=true;
+
+      last=performance.now();
+
+    }
+
+  });
+
+
+
+  pauseBtn.addEventListener('click', ()=>{
+
+    anim = !anim;
+
+    last = performance.now();
+
+    pauseBtn.textContent = anim ? "Pausar" : "Reanudar";
+
+  });
+
+
+
+  resetBtn.addEventListener('click', ()=>{
+
+    anim=false;
+
+    progress=0;
+
+    last=null;
+
+    pauseBtn.textContent="Pausar";
+
+    draw();
+
+    drawChart();
+
+  });
+
+
+
+  downloadBtn.addEventListener('click',()=>{
+
+    const tmp=document.createElement('canvas');
+
+    const w=vis.width+chart.width+20*DPR;
+
+    const h=Math.max(vis.height,chart.height);
+
+    tmp.width=w; tmp.height=h;
+
+    const tctx=tmp.getContext('2d');
+
+    tctx.fillStyle="#1b1230";
+
+    tctx.fillRect(0,0,w,h);
+
+    tctx.drawImage(vis,0,0);
+
+    tctx.drawImage(chart,vis.width+20*DPR,0);
+
+    const a=document.createElement('a');
+
+    a.href=tmp.toDataURL();
+
+    a.download="simulacion_hidrostatica.png";
+
+    a.click();
+
+  });
+
+
+
+  copyBtn.addEventListener('click',()=>{
+
+    const s=`rho=${rhoEl.value}, g=${gEl.value}, h=${hEl.value}, A=${areaEl.value}`;
+
+    navigator.clipboard.writeText(s);
+
+    copyBtn.textContent="Copiado ✓";
+
+    setTimeout(()=>copyBtn.textContent="Copiar parámetros",1000);
+
+  });
+
+
+
+  case1Btn.addEventListener('click',()=>{
+
+    rhoEl.value=1000; gEl.value=9.81; hEl.value=2; areaEl.value=1;
+
+    progress=0; anim=true; last=performance.now();
+
+  });
+
+
+
+  case2Btn.addEventListener('click',()=>{
+
+    rhoEl.value=850; gEl.value=9.81; hEl.value=1.5; areaEl.value=0.8;
+
+    progress=0; anim=true; last=performance.now();
+
+  });
+
+
+
+  [rhoEl,gEl,hEl,areaEl,stepsEl,speedEl].forEach(el=>{
+
+    el.addEventListener('input',()=>{
+
+      if(progress>1) progress=1;
+
+      draw(); drawChart();
+
+    });
+
+  });
+
+
+
+  requestAnimationFrame(loop);
+
 })();
+
 </script>
 
+
+
 </body>
+
 </html>
