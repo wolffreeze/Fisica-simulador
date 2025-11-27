@@ -3,195 +3,150 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Simulador Hidrostático — Dark Purple Soft</title>
+<title>Simulador Hidrostático — Dark Purple Soft (Final)</title>
 
 <style>
   :root{
     --bg1: #120c20;
     --bg2: #1d1433;
     --panel: #2a2040;
-    --panel-2: #342745;
+    --panel2: #342745;
     --muted: #bfb4d9;
-    --muted-2: #a899c6;
     --text: #efe9ff;
     --accent: #9ab3ff;
-    --accent-2: #7df0c8;
+    --accent2: #7df0c8;
     --force: #ff85b5;
-    --shadow: 0 10px 30px rgba(10,8,18,0.6);
-    font-family: Inter, system-ui;
+    font-family: Inter, system-ui, sans-serif;
   }
   *{box-sizing:border-box}
   body{
     margin:0;
     min-height:100vh;
+    background:linear-gradient(var(--bg1),var(--bg2));
+    color:var(--text);
     padding:20px;
-    background: linear-gradient(180deg,var(--bg1),var(--bg2));
-    color:var(--text);
   }
-  .app{
-    max-width:1200px;
-    margin:0 auto;
-    display:grid;
-    grid-template-columns:320px 1fr;
-    gap:20px;
-  }
-  .panel{
-    background:linear-gradient(180deg,var(--panel),var(--panel-2));
-    padding:16px;
-    border-radius:12px;
-    box-shadow:var(--shadow);
-  }
-  h1{font-size:18px;margin:0}
-  .muted{color:var(--muted)}
-  .control{margin-top:12px}
-  label{
-    display:block;
-    margin-bottom:6px;
-    font-weight:600;
-    color:var(--muted-2);
-  }
+
+  .app{max-width:1200px;margin:auto;display:grid;grid-template-columns:320px 1fr;gap:18px}
+  .panel{background:linear-gradient(var(--panel),var(--panel2));border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.03)}
+  h1{margin:0;font-size:20px}
+  .muted{color:var(--muted);font-size:13px}
+
+  label{margin-top:10px;display:block;font-size:13px;color:var(--muted)}
   input[type=number],input[type=range]{
-    width:100%;padding:9px;border-radius:8px;
+    width:100%;margin-top:4px;border-radius:8px;padding:8px;
     border:1px solid rgba(255,255,255,0.05);
-    background:rgba(255,255,255,0.03);
+    background:rgba(255,255,255,0.04);
     color:var(--text);
   }
+
   button{
-    padding:9px 12px;
-    border-radius:9px;
-    cursor:pointer;
-    border:0;
-    font-weight:700;
+    cursor:pointer;padding:8px 12px;border-radius:8px;
+    border:0;font-weight:600;
   }
-  .btn-primary{
-    background:linear-gradient(90deg,var(--accent),#7fb8ff);
-    color:#0a1b2e;
-  }
-  .btn-soft{
-    background:rgba(125,240,200,0.12);
-    color:var(--accent-2);
-  }
-  .btn-ghost{
-    background:transparent;
-    border:1px solid rgba(255,255,255,0.08);
-    color:var(--text);
-  }
+  .btn1{background:var(--accent);color:#000}
+  .btn2{background:rgba(125,240,200,0.15);color:var(--accent2)}
+  .btn-ghost{background:rgba(255,255,255,0.03);color:var(--text)}
+
   .canvas-area{display:flex;gap:12px;flex-wrap:wrap}
-  #visCanvas{width:100%;height:460px;border-radius:10px}
-  #chartCanvas{width:360px;height:260px;border-radius:10px}
-  .results{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:8px;
+  #visCanvas{width:100%;height:460px;border-radius:10px;background:#1c1330}
+  #chartCanvas{width:360px;height:260px;border-radius:10px;background:#241533}
+
+  .results{margin-top:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .card{
+    padding:10px;border-radius:10px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.04);
   }
-  .result-card{
-    background:rgba(255,255,255,0.03);
-    padding:10px;
-    border-radius:10px;
+  .card .label{font-size:12px;color:var(--muted)}
+  .card .value{font-size:19px;font-weight:700}
+
+  @media(max-width:900px){
+    .app{grid-template-columns:1fr}
+    #chartCanvas{width:100%}
   }
-  .value{font-size:19px;font-weight:800;color:var(--text)}
 </style>
 </head>
 
 <body>
+
 <div class="app">
 
-<!--------------------------------------------------------------------------------
-    SIDEBAR
---------------------------------------------------------------------------------->
-<aside class="panel">
-  <h1>Simulador Hidrostático</h1>
-  <p class="muted">Curva P(h), animación dinámica y fuerza hidrostática total.</p>
+  <!-- SIDEBAR -->
+  <aside class="panel">
+    <h1>Simulador Hidrostático — LRPD</h1>
+    <p class="muted" style="margin-top:4px">Simulación dinámica con curva P(h), contenedor animado y fuerza sobre superficie.</p>
 
-  <div class="control">
     <label>Densidad ρ (kg/m³)</label>
-    <input id="rho" type="number" value="1000" step="any">
-  </div>
-  <div class="control">
-    <label>Gravedad g (m/s²)</label>
-    <input id="g" type="number" value="9.81" step="any">
-  </div>
-  <div class="control">
-    <label>Altura h (m)</label>
-    <input id="h" type="number" value="2" step="any">
-  </div>
-  <div class="control">
-    <label>Área A (m²)</label>
-    <input id="area" type="number" value="1" step="any">
-  </div>
-  <div class="control">
-    <label>Resolución</label>
-    <input id="steps" type="range" min="8" max="120" value="40">
-  </div>
+    <input id="rho" type="number" value="1000">
 
-  <div class="control">
+    <label>Gravedad g (m/s²)</label>
+    <input id="g" type="number" value="9.81">
+
+    <label>Altura h (m)</label>
+    <input id="h" type="number" value="2">
+
+    <label>Área A (m²)</label>
+    <input id="area" type="number" value="1">
+
+    <label>Resolución (líneas internas)</label>
+    <input id="steps" type="range" min="8" max="120" value="40">
+
     <label>Velocidad</label>
     <input id="speed" type="range" min="0.25" max="3" step="0.05" value="1">
-    <div class="muted">Velocidad: <span id="speedTxt">1.00x</span></div>
-  </div>
+    <div class="muted">Velocidad actual: <strong id="speedTxt">1.00x</strong></div>
 
-  <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap">
-    <button id="case1" class="btn-primary">Caso 1 (Agua)</button>
-    <button id="case2" class="btn-soft">Caso 2 (Aceite)</button>
-  </div>
+    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+      <button id="case1" class="btn1">Caso 1 (Agua)</button>
+      <button id="case2" class="btn2">Caso 2 (Aceite)</button>
+    </div>
 
-  <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap">
-    <button id="start" class="btn-primary">Iniciar</button>
-    <button id="pause" class="btn-ghost">Pausar</button>
-    <button id="reset" class="btn-ghost">Reiniciar</button>
-  </div>
+    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+      <button id="start" class="btn1">Iniciar</button>
+      <button id="pause" class="btn-ghost">Pausar</button>
+      <button id="reset" class="btn-ghost">Reiniciar</button>
+    </div>
 
-  <footer class="muted" style="margin-top:10px">Hecho para LRPD · 2025</footer>
-</aside>
+    <div style="margin-top:8px;display:flex;gap:6px;">
+      <button id="download" class="btn2">Descargar imagen</button>
+      <button id="copy" class="btn-ghost">Copiar parámetros</button>
+    </div>
 
-<!--------------------------------------------------------------------------------
-    MAIN (CANVAS + RESULTADOS)
---------------------------------------------------------------------------------->
-<main class="panel">
+  </aside>
 
-  <div class="canvas-area">
-    <div style="flex:1">
-      <canvas id="visCanvas"></canvas>
-      <div style="display:flex;justify-content:space-between;margin-top:10px">
-        <div class="muted">Nivel: <strong id="lvl">0.00 m</strong></div>
-        <div class="muted">Presión base: <strong id="pbase">101325 Pa</strong></div>
+  <!-- MAIN -->
+  <main class="panel">
+    <div class="canvas-area">
+      <div style="flex:1">
+        <canvas id="visCanvas"></canvas>
+        <div style="display:flex;justify-content:space-between;margin-top:8px" class="muted">
+          <div>Nivel: <strong id="lvl">0.00 m</strong></div>
+          <div>Presión base: <strong id="pbase">101325 Pa</strong></div>
+        </div>
+      </div>
+
+      <div style="width:360px">
+        <canvas id="chartCanvas"></canvas>
+        <div class="muted" style="margin-top:8px">Curva: Presión vs Profundidad</div>
       </div>
     </div>
 
-    <div>
-      <canvas id="chartCanvas"></canvas>
-      <div class="muted" style="margin-top:5px">Curva: Presión vs Profundidad</div>
+    <div class="results">
+      <div class="card"><div class="label">Presión (base)</div><div class="value" id="resP">—</div></div>
+      <div class="card"><div class="label">Fuerza total</div><div class="value" id="resF">—</div></div>
+      <div class="card"><div class="label">Centroide</div><div class="value" id="resHc">—</div></div>
+      <div class="card"><div class="label">Parámetros</div><div class="value" id="resParams" style="font-size:13px">—</div></div>
     </div>
-  </div>
 
-  <!-- Resultados -->
-  <div class="results">
-    <div class="result-card">
-      <div class="muted">Presión en base</div>
-      <div id="resP" class="value">—</div>
-    </div>
-    <div class="result-card">
-      <div class="muted">Fuerza total</div>
-      <div id="resF" class="value">—</div>
-    </div>
-    <div class="result-card">
-      <div class="muted">Centroide h/2</div>
-      <div id="resHc" class="value">—</div>
-    </div>
-    <div class="result-card">
-      <div class="muted">Parámetros</div>
-      <div id="resParams" class="muted">—</div>
-    </div>
-  </div>
+  </main>
 
-</main>
 </div>
 
-
-<!--------------------------------------------------------------------------------
-    SCRIPT COMPLETO (SIN DUPLICADOS)
---------------------------------------------------------------------------------->
 <script>
+/* -----------------------------------------------------
+   SIMULADOR HIDROSTÁTICO FINAL — JS PURO
+------------------------------------------------------ */
+
 const visCanvas = document.getElementById("visCanvas");
 const chartCanvas = document.getElementById("chartCanvas");
 const visCtx = visCanvas.getContext("2d");
@@ -203,12 +158,7 @@ const hEl = document.getElementById("h");
 const areaEl = document.getElementById("area");
 const stepsEl = document.getElementById("steps");
 const speedEl = document.getElementById("speed");
-
-const startBtn = document.getElementById("start");
-const pauseBtn = document.getElementById("pause");
-const resetBtn = document.getElementById("reset");
-const case1Btn = document.getElementById("case1");
-const case2Btn = document.getElementById("case2");
+const speedTxt = document.getElementById("speedTxt");
 
 const lvlEl = document.getElementById("lvl");
 const pbaseEl = document.getElementById("pbase");
@@ -218,129 +168,115 @@ const resF = document.getElementById("resF");
 const resHc = document.getElementById("resHc");
 const resParams = document.getElementById("resParams");
 
+const startBtn = document.getElementById("start");
+const pauseBtn = document.getElementById("pause");
+const resetBtn = document.getElementById("reset");
+const case1Btn = document.getElementById("case1");
+const case2Btn = document.getElementById("case2");
+const downloadBtn = document.getElementById("download");
+const copyBtn = document.getElementById("copy");
+
 const P0 = 101325;
-let currentLevel = 0;
-let animating = false;
-let lastTime = null;
+let last = null;
+let anim = false;
+let level = 0; // current fill
+const DPR = window.devicePixelRatio || 1;
 
-function resizeAll(){
-  const DPR = window.devicePixelRatio || 1;
-
-  visCanvas.width = visCanvas.clientWidth * DPR;
-  visCanvas.height = 460 * DPR;
-
-  chartCanvas.width = chartCanvas.clientWidth * DPR;
-  chartCanvas.height = 260 * DPR;
-
-  drawSimulation(currentLevel);
-  drawChart(currentLevel);
-}
-resizeAll();
-window.addEventListener("resize", resizeAll);
-
-
-/* ================================================
-   Lectura de parámetros
-================================================ */
-function readParams() {
+/* -----------------------------------------
+   Helper: leer parámetros
+----------------------------------------- */
+function readParams(){
   return {
-    rho: parseFloat(rhoEl.value) || 0,
-    g: parseFloat(gEl.value) || 9.81,
-    h: parseFloat(hEl.value) || 0,
-    area: parseFloat(areaEl.value) || 0,
-    steps: parseInt(stepsEl.value) || 30,
-    speed: parseFloat(speedEl.value) || 1
+    rho: parseFloat(rhoEl.value)||0,
+    g: parseFloat(gEl.value)||0,
+    h: parseFloat(hEl.value)||0,
+    area: parseFloat(areaEl.value)||0,
+    steps: parseInt(stepsEl.value)||40,
+    speed: parseFloat(speedEl.value)||1
   };
 }
 
-
-/* ================================================
+/* -----------------------------------------
    Física
-================================================ */
-function pressureAt(depth, rho, g){
-  return P0 + rho*g*depth;
-}
-function totalForce(rho,g,h,A){
-  return rho*g*(h/2)*A;
-}
+----------------------------------------- */
+function pressureAt(depth, rho, g){ return P0 + rho*g*depth; }
+function totalForce(rho,g,h,A){ return rho*g*(h/2)*A; }
 
-
-/* ================================================
-   Dibujar simulación principal
-================================================ */
-function drawSimulation(level){
-  const DPR = window.devicePixelRatio || 1;
-  const p = readParams();
-  const { rho, g, h, area, steps } = p;
+/* -----------------------------------------
+   Dibujo principal
+----------------------------------------- */
+function drawSim(){
+  const { rho, g, h, area, steps } = readParams();
 
   const W = visCanvas.width;
   const H = visCanvas.height;
 
   visCtx.clearRect(0,0,W,H);
+  const pad = 30 * DPR;
 
-  const pad = 20 * DPR;
   const tankX = pad;
   const tankY = pad;
   const tankW = W * 0.45;
   const tankH = H - pad*2;
 
-  /* Fondo del tanque */
-  visCtx.fillStyle = "#2a2040";
-  roundRect(visCtx, tankX, tankY, tankW, tankH, 12 * DPR);
-  visCtx.fill();
+  // contenedor
+  visCtx.fillStyle = "#241533";
+  roundRect(visCtx,tankX,tankY,tankW,tankH,12*DPR); visCtx.fill();
 
-  /* Líneas internas */
-  visCtx.fillStyle = "rgba(255,255,255,0.06)";
-  for(let i=0;i<steps;i++){
+  // líneas internas
+  visCtx.fillStyle = "rgba(255,255,255,0.05)";
+  for(let i=0;i<=steps;i++){
     const y = tankY + (i/steps)*tankH;
-    visCtx.fillRect(tankX+8*DPR, y, tankW-16*DPR, 1*DPR);
+    visCtx.fillRect(tankX+10,y,tankW-20,1*DPR);
   }
 
-  /* Nivel */
-  const frac = h===0 ? 0 : level/h;
-  const fillH = frac * tankH;
-  const yTop = tankY + tankH - fillH;
-
-  if(fillH>0){
-    const grad = visCtx.createLinearGradient(0,yTop,0,yTop+fillH);
-    grad.addColorStop(0,"rgba(60,120,200,0.28)");
-    grad.addColorStop(1,"rgba(20,70,160,0.35)");
+  const frac = h===0?0 : level/h;
+  const waterH = frac*tankH;
+  if(waterH>0){
+    const yTop = tankY + tankH - waterH;
+    const grad = visCtx.createLinearGradient(0,yTop,0,yTop+waterH);
+    grad.addColorStop(0,"rgba(80,130,255,0.25)");
+    grad.addColorStop(1,"rgba(45,90,210,0.35)");
     visCtx.fillStyle = grad;
-    roundRect(visCtx,tankX,yTop,tankW,fillH,12*DPR);
+    roundRect(visCtx,tankX,yTop,tankW,waterH,12*DPR); 
     visCtx.fill();
   }
 
-  /* -----------------------------------------
-        Barra de presión
-  ----------------------------------------- */
-  const barX = tankX + tankW + 25*DPR;
-  const barW = W * 0.28;
+  /* -------------------------
+     Barras de presión
+  ------------------------- */
+  const barX = tankX + tankW + 30*DPR;
+  const barW = W * 0.25;
 
   for(let i=0;i<=steps;i++){
-    const df = i/steps;
-    const depth = df*h;
-    const P = pressureAt(depth, rho, g);
+    const d = (i/steps)*h;
+    const y = tankY + (i/steps)*tankH;
 
-    const rel = df;
+    const rel = h===0?0:(d/h);
     const bw = rel * barW * frac;
 
-    const y = tankY + df*tankH;
-
-    visCtx.fillStyle = "rgba(255,255,255,0.13)";
-    roundRect(visCtx, barX, y - 3*DPR, bw, 6*DPR, 3*DPR);
+    visCtx.fillStyle="rgba(255,255,255,0.2)";
+    roundRect(visCtx,barX,y-3*DPR,bw,6*DPR,3*DPR);
     visCtx.fill();
   }
 
-  /* -----------------------------------------
-        Fuerza hidrostática
-  ----------------------------------------- */
-  const Ftot = totalForce(rho,g,h,area);
+  /* -------------------------
+     Flecha de fuerza corregida
+  ------------------------- */
+  const F = totalForce(rho,g,h,area);
   const Fcur = totalForce(rho,g,level,area);
-  const arrowMax = W * 0.22;
-  const arrow = Ftot===0 ? 0 : (Fcur/Ftot)*arrowMax;
 
+  const arrowMax = Math.min(W*0.22, 260*DPR);
+  const arrow = F===0 ? 0 : (Fcur/F)*arrowMax;
+
+  // centro de presión ideal
   const cp = level/2;
-  const cpY = tankY + tankH - (cp/Math.max(h,0.001))*tankH;
+  let cpY = tankY + tankH - (h===0?0:(cp/h)*tankH);
+
+  // límites para evitar que se meta al gráfico
+  const cpMin = tankY + tankH*0.08;
+  const cpMax = tankY + tankH*0.92;
+  cpY = Math.min(cpMax, Math.max(cpMin, cpY));
 
   const ax0 = barX + barW + 25*DPR;
 
@@ -351,66 +287,64 @@ function drawSimulation(level){
   visCtx.lineTo(ax0+arrow,cpY);
   visCtx.stroke();
 
+  // punta
   visCtx.beginPath();
-  visCtx.moveTo(ax0+arrow, cpY);
-  visCtx.lineTo(ax0+arrow+7*DPR, cpY-6*DPR);
-  visCtx.lineTo(ax0+arrow+7*DPR, cpY+6*DPR);
+  visCtx.moveTo(ax0+arrow,cpY);
+  visCtx.lineTo(ax0+arrow+7*DPR,cpY-6*DPR);
+  visCtx.lineTo(ax0+arrow+7*DPR,cpY+6*DPR);
   visCtx.closePath();
   visCtx.fillStyle="#ff85b5";
   visCtx.fill();
 
-  if(arrow>10){
-    visCtx.fillStyle="#ffd0e6";
-    visCtx.font=`${12*DPR}px Inter`;
-    visCtx.fillText(`F ≈ ${Fcur.toFixed(1)} N`, ax0+arrow+12, cpY-12);
+  // etiqueta fuerza
+  if(arrow>6){
+    visCtx.fillStyle="#ffd3e8";
+    visCtx.font = `${13*DPR}px Inter`;
+    visCtx.fillText(`F ≈ ${Math.round(Fcur)} N`, ax0+arrow+12, cpY-10);
   }
 
+  /* -------------------------
+     Actualizar panel
+  ------------------------- */
   lvlEl.textContent = level.toFixed(2)+" m";
   pbaseEl.textContent = Math.round(pressureAt(level,rho,g))+" Pa";
 
-  const Pbase = pressureAt(h,rho,g);
-  const Fbase = totalForce(rho,g,h,area);
-
-  resP.textContent = Math.round(Pbase) + " Pa";
-  resF.textContent = Math.round(Fbase) + " N";
-  resHc.textContent = (h/2).toFixed(2) + " m";
+  resP.textContent = Math.round(pressureAt(h,rho,g))+" Pa";
+  resF.textContent = Math.round(F)+" N";
+  resHc.textContent = (h/2).toFixed(2)+" m";
   resParams.textContent = `ρ=${rho} · g=${g} · h=${h} · A=${area}`;
 }
 
-
-/* ================================================
-   Gráfico
-================================================ */
-function drawChart(level){
-  const DPR = window.devicePixelRatio || 1;
-  const p = readParams();
-  const {rho,g,h,steps} = p;
+/* -----------------------------------------
+   Gráfico presión vs profundidad
+----------------------------------------- */
+function drawChart(){
+  const {rho,g,h,steps} = readParams();
 
   const W = chartCanvas.width;
   const H = chartCanvas.height;
-
   chartCtx.clearRect(0,0,W,H);
 
-  chartCtx.fillStyle="rgba(20,15,30,0.8)";
-  chartCtx.fillRect(0,0,W,H);
-
-  const ml=50*DPR, mr=20*DPR, mt=20*DPR, mb=40*DPR;
+  const ml=50*DPR, mt=20*DPR, mr=20*DPR, mb=40*DPR;
   const pw=W-ml-mr, ph=H-mt-mb;
 
-  chartCtx.strokeStyle="rgba(255,255,255,0.2)";
+  chartCtx.fillStyle="#1a112e";
+  chartCtx.fillRect(0,0,W,H);
+
+  chartCtx.strokeStyle="rgba(255,255,255,0.08)";
   chartCtx.beginPath();
   chartCtx.moveTo(ml,mt);
   chartCtx.lineTo(ml,mt+ph);
   chartCtx.lineTo(ml+pw,mt+ph);
   chartCtx.stroke();
 
-  const Pmax=pressureAt(h,rho,g);
+  const Pmax = pressureAt(h,rho,g);
 
   chartCtx.beginPath();
   for(let i=0;i<=steps;i++){
     const f=i/steps;
-    const depth=f*h;
-    const P=pressureAt(depth,rho,g);
+    const d=f*h;
+    const P=pressureAt(d,rho,g);
     const x=ml+((P-P0)/(Pmax-P0))*pw;
     const y=mt+f*ph;
     if(i===0) chartCtx.moveTo(x,y);
@@ -420,49 +354,123 @@ function drawChart(level){
   chartCtx.lineWidth=2.5*DPR;
   chartCtx.stroke();
 
-  const Pcur=pressureAt(level,rho,g);
-  const xc=ml+((Pcur-P0)/(Pmax-P0))*pw;
-  const yc=mt+(level/Math.max(h,0.001))*ph;
+  // punto actual
+  const Pcur = pressureAt(level,rho,g);
+  const xc = ml+((Pcur-P0)/(Pmax-P0))*pw;
+  const yc = mt+(h===0?0:(level/h))*ph;
 
-  chartCtx.beginPath();
   chartCtx.fillStyle="#dff3ff";
+  chartCtx.beginPath();
   chartCtx.arc(xc,yc,4*DPR,0,Math.PI*2);
   chartCtx.fill();
 
-  chartCtx.fillStyle="#fff";
-  chartCtx.font=`${11*DPR}px Inter`;
-  chartCtx.fillText(`${Math.round(Pcur)} Pa`, xc+12, yc-10);
+  chartCtx.font=`${12*DPR}px Inter`;
+  chartCtx.fillStyle="#eee";
+  chartCtx.fillText(`${Math.round(Pcur)} Pa`, xc+10, yc-10);
 }
 
 
-/* ================================================
+/* -----------------------------------------
    Animación
-================================================ */
-function animate(ts){
-  if(!lastTime) lastTime = ts;
-  const dt = (ts-lastTime)/1000;
-  lastTime = ts;
+----------------------------------------- */
+function loop(t){
+  if(!last) last=t;
+  const dt=(t-last)/1000;
+  last=t;
 
-  const {h,speed} = readParams();
+  const {h,speed}=readParams();
 
-  if(animating){
-    currentLevel += dt * (h / (2.2/speed));
-    if(currentLevel >= h){
-      currentLevel = h;
-      animating = false;
-    }
+  if(anim){
+    level += dt*(h/(2.0/speed)); 
+    if(level>=h){ level=h; anim=false; }
   }
-  drawSimulation(currentLevel);
-  drawChart(currentLevel);
 
-  requestAnimationFrame(animate);
+  drawSim();
+  drawChart();
+  requestAnimationFrame(loop);
 }
-requestAnimationFrame(animate);
+requestAnimationFrame(loop);
 
+/* -----------------------------------------
+   Eventos
+----------------------------------------- */
+startBtn.onclick = () => { anim=true; if(level>=readParams().h) level=0; };
+pauseBtn.onclick = () => anim=false;
+resetBtn.onclick = () => { anim=false; level=0; };
 
-/* ================================================
-   Funciones auxiliares
-================================================ */
+case1Btn.onclick = () =>{
+  rhoEl.value=1000; gEl.value=9.81; hEl.value=2; areaEl.value=1;
+  level=0; anim=true;
+};
+
+case2Btn.onclick = () =>{
+  rhoEl.value=850; gEl.value=9.81; hEl.value=1.5; areaEl.value=0.8;
+  level=0; anim=true;
+};
+
+speedEl.oninput = ()=>{
+  speedTxt.textContent = parseFloat(speedEl.value).toFixed(2)+"x";
+};
+
+/* redibujar en cambios */
+[rhoEl,gEl,hEl,areaEl,stepsEl].forEach(el=>{
+  el.oninput = ()=>{ if(level>readParams().h) level=0; drawSim(); drawChart(); }
+});
+
+/* -----------------------------------------
+   Descargar imagen
+----------------------------------------- */
+downloadBtn.onclick = ()=>{
+  const temp=document.createElement("canvas");
+  temp.width=visCanvas.width + chartCanvas.width + 40*DPR;
+  temp.height=Math.max(visCanvas.height,chartCanvas.height);
+  const t=temp.getContext("2d");
+
+  t.fillStyle="#1a112e";
+  t.fillRect(0,0,temp.width,temp.height);
+
+  t.drawImage(visCanvas,0,0);
+  t.drawImage(chartCanvas,visCanvas.width+40*DPR,0);
+
+  const a=document.createElement("a");
+  a.href=temp.toDataURL("image/png");
+  a.download="simulacion.png";
+  a.click();
+};
+
+/* -----------------------------------------
+   Copiar parámetros
+----------------------------------------- */
+copyBtn.onclick = ()=>{
+  const txt = `rho=${rhoEl.value}, g=${gEl.value}, h=${hEl.value}, A=${areaEl.value}`;
+  navigator.clipboard.writeText(txt).then(()=>{
+    copyBtn.textContent="Copiado ✓";
+    setTimeout(()=>copyBtn.textContent="Copiar parámetros",900);
+  });
+};
+
+/* -----------------------------------------
+   Redimensionar
+----------------------------------------- */
+function resize(){
+  const R1=visCanvas.getBoundingClientRect();
+  const R2=chartCanvas.getBoundingClientRect();
+
+  visCanvas.width = (R1.width||600) * DPR;
+  visCanvas.height = 460 * DPR;
+
+  chartCanvas.width = (R2.width||360) * DPR;
+  chartCanvas.height = 260 * DPR;
+
+  drawSim();
+  drawChart();
+}
+window.addEventListener("resize",resize);
+setTimeout(resize,100);
+
+/* -----------------------------------------
+   Helper: rectángulo redondeado
+----------------------------------------- */
 function roundRect(ctx,x,y,w,h,r){
   ctx.beginPath();
   ctx.moveTo(x+r,y);
@@ -473,28 +481,7 @@ function roundRect(ctx,x,y,w,h,r){
   ctx.closePath();
 }
 
-
-/* ================================================
-   Controles
-================================================ */
-startBtn.onclick = ()=>{ animating=true; currentLevel=0; lastTime=null; };
-pauseBtn.onclick = ()=>{ animating=false; };
-resetBtn.onclick = ()=>{ animating=false; currentLevel=0; drawSimulation(0); drawChart(0); };
-
-case1Btn.onclick = ()=>{
-  rhoEl.value=1000; gEl.value=9.81; hEl.value=2; areaEl.value=1;
-  currentLevel=0; animating=true; lastTime=null;
-};
-
-case2Btn.onclick = ()=>{
-  rhoEl.value=850; gEl.value=9.81; hEl.value=1.5; areaEl.value=0.8;
-  currentLevel=0; animating=true; lastTime=null;
-};
-
-[rhoEl,gEl,hEl,areaEl,stepsEl,speedEl].forEach(el=>{
-  el.addEventListener("input",()=>{ drawSimulation(currentLevel); drawChart(currentLevel); });
-});
 </script>
-
 </body>
 </html>
+
