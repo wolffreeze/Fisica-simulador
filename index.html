@@ -238,14 +238,22 @@ function drawChart(progress) {
     ctx.beginPath();
 
     const steps = 50;
-    for (let i = 0; i <= steps; i++) {
+for (let i = 0; i <= steps * maxFrac; i++) {
         const frac = i / steps;
-        const depth = depthNow * frac;
-        const P = P0 + rho * g * depth;
+        // Profundidad y presión MÁXIMA (fijas)
+const Pmax = P0 + rho * g * H;
 
-        const x = ml + frac * pw;
-        const fracY = (P - P0) / (rho * g * H);
-        const y = mt + fracY * ph;
+// Líneas hasta la profundidad actual
+const maxFrac = depthNow / H;
+
+// Dibujo de la curva SOLO hasta la profundidad animada
+const depth = H * frac;            // 🔥 profundidad REAL del eje
+const P = P0 + rho * g * depth;    // 🔥 presión REAL del eje
+
+// Posición
+const x = ml + frac * pw;
+const fracY = depth / H;           // 🔥 altura según profundidad global
+const y = mt + fracY * ph;
 
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
